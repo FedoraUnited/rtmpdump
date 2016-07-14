@@ -4,7 +4,7 @@
 
 Name:           rtmpdump
 Version:        2.4
-Release:        5.%{gitdate}.git%{shortcommit}%{?dist}
+Release:        6.%{gitdate}.git%{shortcommit}%{?dist}
 Summary:        Toolkit for RTMP streams
 
 Group:          Applications/Internet
@@ -75,6 +75,9 @@ rm -f %{buildroot}%{_libdir}/librtmp.a
 %{_mandir}/man3/librtmp.3*
 
 %changelog
+
+* Fri Jul 08 2016 David Vásquez <davidjeremias82 AT gmail DOT com> - 2.4-6.20151223gitfa8646d
+- Massive rebuild
 
 * Tue Feb 23 2016 David Vásquez <davidjeremias82 AT gmail DOT com> - 2.4-5.20151223.gitfa8646d
 - Updated to 2.4-5.20151223.gitfa8646d
