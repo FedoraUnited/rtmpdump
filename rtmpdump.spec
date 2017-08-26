@@ -1,10 +1,13 @@
+# Patches and tips thanks to Debian
+# https://anonscm.debian.org/git/pkg-multimedia/rtmpdump.git/tree/
+
 %global commit fa8646daeb19dfd12c181f7d19de708d623704c0
 %global shortcommit %(c=%{commit}; echo ${c:0:7})
 %global gitdate 20151223
 
 Name:           rtmpdump
 Version:        2.4
-Release:        6.%{gitdate}.git%{shortcommit}%{?dist}
+Release:        8.%{gitdate}.git%{shortcommit}%{?dist}
 Summary:        Toolkit for RTMP streams
 
 Group:          Applications/Internet
@@ -12,11 +15,15 @@ Group:          Applications/Internet
 License:        GPLv2+
 URL:            http://rtmpdump.mplayerhq.hu/
 Source0:        http://repo.or.cz/w/rtmpdump.git/snapshot/fa8646daeb19dfd12c181f7d19de708d623704c0.tar.gz
+Patch0: 	01_unbreak_makefile.diff
+Patch1: 	02_gnutls_requires.private.diff
+Patch2: 	03_suppress_warning.diff
 
 BuildRequires:  gnutls-devel
 BuildRequires:  libgcrypt-devel
 BuildRequires:  zlib-devel
 BuildRequires:  nettle-devel
+BuildRequires:	openssl-devel
 
 %description
 rtmpdump is a toolkit for RTMP streams. All forms of RTMP are supported,
@@ -42,11 +49,13 @@ librtmp is a support library for RTMP streams. The librtmp-devel package
 contains include files needed to develop applications using librtmp.
 
 %prep
-%setup -q -n %{name}-%{shortcommit}
+%autosetup -n %{name}-%{shortcommit} -p1
+
 
 %build
-# The fact that we have to add -ldl for gnutls is Fedora bug #611318
-make SYS=posix CRYPTO=GNUTLS SHARED=yes OPT="%{optflags}" LIB_GNUTLS="-lgnutls -lgcrypt -ldl"
+
+make prefix=%{_prefix} CRYPTO=GNUTLS libdir=%{_libdir} XCFLAGS="-g -O2 -fstack-protector-strong -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2" XLDFLAGS="-Wl,-z,relro"
+
 
 %install
 make CRYPTO=GNUTLS SHARED=yes DESTDIR=%{buildroot} prefix=%{_prefix} mandir=%{_mandir} libdir=%{_libdir} install
@@ -75,6 +84,10 @@ rm -f %{buildroot}%{_libdir}/librtmp.a
 %{_mandir}/man3/librtmp.3*
 
 %changelog
+
+* Fri Aug 25 2017 David Vásquez <davidjeremias82 AT gmail DOT com> - 2.4-8.20151223gitfa8646d
+- Rebuilt for Fedora 28
+- Patches from Debian
 
 * Fri Jul 08 2016 David Vásquez <davidjeremias82 AT gmail DOT com> - 2.4-6.20151223gitfa8646d
 - Massive rebuild
